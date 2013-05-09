@@ -1,0 +1,19 @@
+{
+	"name" : "seshun",
+	"description" : "Scalable Session Service",
+  	"version" : "0.0.1",
+	"author" : "Andrew Vayanis",
+	"contributors" : ["Chris Bednarski"],
+  	"homepage" : "https://github.com/avayanis/seshun",
+  	"bugs" : "https://github.com/avayanis/seshun/issues",
+  	"dependencies" : {
+  		"zzz" : "0.2.0"
+  	},
+	"devDependencies" : {
+		"mocha" : "1.9.0",
+		"should" : "1.2.2"
+	},
+	"scripts" : {
+	   "test" : "make test"
+	}
+}
