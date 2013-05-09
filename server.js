@@ -1,12 +1,11 @@
-var server = require("zzz").createServer();
-var uuid = require("node-uuid");
+var server = require("zzz").createServer(),
+    uuid = require("node-uuid");
 
 server.put("/session/:bucket", function(request, response, params) {
     response.end(params);
 });
 
 server.get("/session/:bucket/:sessionId", function(request, response, params) {
-    console.log(params);
     response.end("Bucket:" + params.bucket + " SessionID:" + params.sessionId);
 });
 
