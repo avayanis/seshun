@@ -1,5 +1,5 @@
-var server = require("zzz").createServer();
-var uuid = require("node-uuid");
+var server = require("zzz").createServer(),
+    uuid = require("node-uuid");
 
 server.put("/session/:bucket", function(request, response, params) {
     response.end(params);
