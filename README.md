@@ -2,6 +2,19 @@
 
 Seshun is a scalable session service. The API describes a RESTful interface for interacting with sessions stored in Seshun.
 
+## Usage
+
+To startup the Seshun server
+
+``` bash
+$ seshun
+```
+
+To startup the Seshun server with debug logging
+``` bash
+$ DEBUG=* seshun
+```
+
 ### Terminology
 
  - **client app:** an application that stores some data in seshun
