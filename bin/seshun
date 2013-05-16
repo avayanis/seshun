@@ -1,0 +1,27 @@
+#! /usr/bin/env node
+
+/**
+ * Module dependencies
+ */
+var server = require("zzz").createServer()
+	debug = require("debug")("seshun:server"),
+	yaml_config = require("node-yaml-config");
+
+debug("Starting up Seshun Server.");
+debug("Loading configuration.");
+var config = yaml_config.load(__dirname + "/../config/config.yml");
+
+server.put("/session/:bucket", function(request, response, params) {
+    response.end(params);
+});
+
+server.get("/session/:bucket/:sessionId", function(request, response, params) {
+    response.end("Bucket:" + params.bucket + " SessionID:" + params.sessionId);
+});
+
+server.get("/session/settings", function(request, response, params) {
+    response.end("config.yml spewwwww!");
+});
+
+server.listen(config.http.port);
+debug("Seshun Server listening on port: " + config.http.port);
