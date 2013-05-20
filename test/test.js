@@ -1,3 +1,8 @@
+chai = require('chai');
+should = chai.should();
+expect = chai.expect;
+assert = chai.assert;
+
 if (process.env.HTML_COVERAGE) {
     libpath = __dirname + "/../lib-cov"
 } else {
