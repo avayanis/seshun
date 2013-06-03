@@ -1,34 +1,68 @@
 require('./../test');
 
-var storage = require(libpath + '/NodeStorage');
+var NodeStorage = require(libpath + '/NodeStorage'),
+	storage = new NodeStorage();
 
 describe('NodeStorage - In memory storage engine', function() {
 
+	it('should be a valid storage interface', function() {
+		assert.typeOf(storage.set, 'function');
+		assert.typeOf(storage.get, 'function');
+		assert.typeOf(storage.remove, 'function');
+	});
+
 	describe('NodeStorage.set', function() {
-
-		it('should have get/set/delete methods', function(){
-
-			storage.should.have.property('set');
-			storage.set.should.be.a('function');
-
-			storage.should.have.property('get');
-			storage.get.should.be.a('function');
-			
-			storage.should.have.property('delete');
-			storage.delete.should.be.a('function');
-
-		});
 
 		it('should return false if an invalid key is provided', function() {
 
-			var result = storage.set(function(){}, 'test');
-			result.should.not.be.ok
+			var result = storage.set({}, 'test');
+
+			assert.isFalse(result);
 
 		});
 
-		it('should return true if it properly stores key/value', function() {
+		it('should accept 2 arguments: key, value, ttl', function() {
 
+			var key = 'testKey',
+				value = {'object' : 'value'},
+				result = storage.set(key, value);
 
+			assert.isTrue(result);			
+
+		});
+
+		it('should accept 3 arguments: key, value, ttl', function() {
+
+			var key = 'testKey',
+				value = {'object' : 'value'},
+				ttl = 5,
+				result = storage.set(key, value, ttl);
+
+			assert.isTrue(result);
+
+		});
+
+	});
+
+	describe('NodeStorage.get', function() {
+
+		it('should return false if an invalid key is provided', function() {
+
+			var result = storage.get({}, 'test');
+
+			assert.isFalse(result);
+
+		});
+
+		it('should accept argument: key', function() {
+
+			var key = 'testKey',
+				value = {'object' : 'value'};
+				
+			storage.set(key, value);
+			var result = storage.get(key);
+
+			assert.equal(value, result);	
 
 		});
 
