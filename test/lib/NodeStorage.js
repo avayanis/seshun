@@ -46,7 +46,7 @@ describe('NodeStorage - In memory storage engine', function() {
 
 	describe('NodeStorage.get', function() {
 
-		it('should return false if an invalid key is provided', function() {
+		it('should return null if an invalid key is provided', function() {
 
 			var result = storage.get({}, 'test');
 
@@ -65,6 +65,25 @@ describe('NodeStorage - In memory storage engine', function() {
 			assert.equal(value, result);	
 
 		});
+
+	});
+
+	describe('NodeStorage.remove', function() {
+
+		it('should remove the specified key', function() {
+
+			var key = 'testKey',
+				value = 'testValue';
+
+			storage.set(key, value);
+
+			storage.remove(key);
+
+			var result = storage.get(key);
+
+			assert.isFalse(result);
+
+		})
 
 	});
 
