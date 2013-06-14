@@ -1,6 +1,6 @@
-require('./../test');
+require('./../../test');
 
-var NodeStorage = require(libpath + '/NodeStorage'),
+var NodeStorage = require(libpath + '/storage/node'),
 	storage = new NodeStorage();
 
 describe('NodeStorage - In memory storage engine', function() {
