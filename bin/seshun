@@ -3,20 +3,35 @@
 /**
  * Module dependencies
  */
-var server = require('zzz').createServer()
+var server = require('zzz').createServer(),
+    url = require('url'),
+    querystring = require('querystring'),
     debug = require('debug')('seshun:server'),
     yaml_config = require('node-yaml-config');
 
 debug('Starting up Seshun Server.');
+
 debug('Loading configuration.');
-var config = yaml_config.load(__dirname + '/../config/config.yml');
+
+var config = yaml_config.load(__dirname + '/../config/config.yml'),
+    storageAdapter = require('../lib/storage/' + config.backend),
+    storage = new storageAdapter();
 
 server.put('/session/:bucket', function(request, response, params) {
-    response.end(params);
+    
 });
 
 server.get('/session/:bucket/:sessionId', function(request, response, params) {
-    response.end('Bucket:' + params.bucket + ' SessionID:' + params.sessionId);
+    
+    var query = url.parse(request.url).query,
+        apiKey = querystring.parse(query).apiKey;
+
+    console.log(apiKey);
+
+});
+
+server.post('/session/:bucket/:sessionId', function(request, response, params) {
+    
 });
 
 server.get('/session/settings', function(request, response, params) {

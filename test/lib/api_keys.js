@@ -7,7 +7,13 @@ describe('ApiKeys Service', function() {
 
 	beforeEach(function() {
 		
-		ApiKeyService = new ApiKeys();
+		var storage = {
+			"get" : function(){},
+			"set" : function(){},
+			"remove" : function(){}
+		};
+
+		ApiKeyService = new ApiKeys(storage);
 	
 	});
 
@@ -17,7 +23,12 @@ describe('ApiKeys Service', function() {
 
 			var bucket = 'test',
 				testKey = '12ab',
+				storage = ApiKeyService.getStorage(),
 				uuidMock = sinon.stub(ApiKeyService._uuid, "v1").returns(testKey);
+
+
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+			sinon.stub(storage, 'set').withArgs(bucket, 0);
 
 			var result = ApiKeyService.create(bucket);
 
@@ -30,16 +41,17 @@ describe('ApiKeys Service', function() {
 		it('should return false if ApiKey already exists', function() {
 			
 			var bucket = 'test',
-				testKey = '12ab',
-				uuidMock = sinon.stub(ApiKeyService._uuid, "v1").returns(testKey);
+				storage = ApiKeyService.getStorage();
+			
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 
 			ApiKeyService.create(bucket);
+
+			storage.get.withArgs(bucket).returns(true);
 
 			var result = ApiKeyService.create(bucket);
 			
 			assert.isFalse(result);
-
-			ApiKeyService._uuid.v1.restore();
 
 		});
 
