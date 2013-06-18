@@ -1,4 +1,5 @@
 chai = require('chai');
+sinon = require('sinon');
 should = chai.should();
 expect = chai.expect;
 assert = chai.assert;
