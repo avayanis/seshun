@@ -1,21 +1,24 @@
 require('./../../test');
 
-var NodeStorage = require(libpath + '/storage/node'),
-	storage = new NodeStorage();
+var NodeStorage;
 
 describe('NodeStorage - In memory storage engine', function() {
 
+	beforeEach(function() {
+		NodeStorage = require(libpath + '/storage/node');
+	});
+
 	it('should be a valid storage interface', function() {
-		assert.typeOf(storage.set, 'function');
-		assert.typeOf(storage.get, 'function');
-		assert.typeOf(storage.remove, 'function');
+		assert.typeOf(NodeStorage.set, 'function');
+		assert.typeOf(NodeStorage.get, 'function');
+		assert.typeOf(NodeStorage.remove, 'function');
 	});
 
 	describe('NodeStorage.set', function() {
 
 		it('should return false if an invalid key is provided', function() {
 
-			var result = storage.set({}, 'test');
+			var result = NodeStorage.set({}, 'test');
 
 			assert.isFalse(result);
 
@@ -25,7 +28,7 @@ describe('NodeStorage - In memory storage engine', function() {
 
 			var key = 'testKey',
 				value = {'object' : 'value'},
-				result = storage.set(key, value);
+				result = NodeStorage.set(key, value);
 
 			assert.isTrue(result);			
 
@@ -36,7 +39,7 @@ describe('NodeStorage - In memory storage engine', function() {
 			var key = 'testKey',
 				value = {'object' : 'value'},
 				ttl = 5,
-				result = storage.set(key, value, ttl);
+				result = NodeStorage.set(key, value, ttl);
 
 			assert.isTrue(result);
 
@@ -48,7 +51,7 @@ describe('NodeStorage - In memory storage engine', function() {
 
 		it('should return null if an invalid key is provided', function() {
 
-			var result = storage.get({}, 'test');
+			var result = NodeStorage.get({}, 'test');
 
 			assert.isFalse(result);
 
@@ -59,8 +62,8 @@ describe('NodeStorage - In memory storage engine', function() {
 			var key = 'testKey',
 				value = {'object' : 'value'};
 				
-			storage.set(key, value);
-			var result = storage.get(key);
+			NodeStorage.set(key, value);
+			var result = NodeStorage.get(key);
 
 			assert.equal(value, result);	
 
@@ -75,11 +78,11 @@ describe('NodeStorage - In memory storage engine', function() {
 			var key = 'testKey',
 				value = 'testValue';
 
-			storage.set(key, value);
+			NodeStorage.set(key, value);
 
-			storage.remove(key);
+			NodeStorage.remove(key);
 
-			var result = storage.get(key);
+			var result = NodeStorage.get(key);
 
 			assert.isFalse(result);
 
