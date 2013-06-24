@@ -13,7 +13,9 @@ describe('ApiKeys Service', function() {
 			"remove" : function(){}
 		};
 
-		ApiKeyService = new ApiKeys(storage);
+		// ApiKeyService = new ApiKeys(storage);
+		ApiKeyService = Object.create(ApiKeys);
+		ApiKeyService._storage = storage;
 	
 	});
 
