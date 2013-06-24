@@ -62,8 +62,16 @@ describe('ApiKeys Service', function() {
 		it('should return the same ApiKey that was returned when created', function() {
 
 			var bucket = 'test',
-				apiKey = ApiKeyService.create(bucket),
-				result = ApiKeyService.fetch(bucket);
+				storage = ApiKeyService.getStorage();
+
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+
+			var apiKey = ApiKeyService.create(bucket);
+
+			storage.get.restore();
+			sinon.stub(storage, 'get').withArgs(bucket).returns(apiKey);
+				
+			var result = ApiKeyService.fetch(bucket);
 
 			assert.equal(apiKey, result);
 
@@ -72,7 +80,11 @@ describe('ApiKeys Service', function() {
 		it('should return false if the requested ApiKey does not exist', function() {
 
 			var bucket = 'test',
-				result = ApiKeyService.fetch(bucket);
+				storage = ApiKeyService.getStorage();
+				
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+			
+			var result = ApiKeyService.fetch(bucket);
 
 			assert.isFalse(result);
 
@@ -86,8 +98,7 @@ describe('ApiKeys Service', function() {
 
 			var bucket = 'test',
 				testKey = '12ab',
-				storage = ApiKeyService.getStorage(),
-				uuidMock = sinon.stub(ApiKeyService._uuid, "v1").returns(testKey);
+				storage = ApiKeyService.getStorage();
 				
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 			sinon.stub(storage, 'set').withArgs(bucket, 0);
@@ -97,11 +108,26 @@ describe('ApiKeys Service', function() {
 
 			assert.ok(apiKey);
 
-			var deleteResult = ApiKeyService.delete(bucket),
-				getResult = ApiKeyService.fetch(bucket);
+			storage.get.restore();
+			sinon.stub(storage, 'get').withArgs(bucket).returns(true);
+
+			var deleteResult = ApiKeyService.delete(bucket);
 
 			assert.isTrue(deleteResult);
-			assert.isFalse(getResult);
+
+		});
+
+		it('should return false when a non-existant apiKey is deleted', function() {
+
+			var bucket = 'test',
+				testKey = '12ab',
+				storage = ApiKeyService.getStorage();
+				
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+
+			var deleteResult = ApiKeyService.delete(bucket);
+
+			assert.isFalse(deleteResult);
 
 		});
 
