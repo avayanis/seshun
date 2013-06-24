@@ -85,7 +85,15 @@ describe('ApiKeys Service', function() {
 		it('should return true when an apiKey is successfully deleted', function() {
 
 			var bucket = 'test',
-				apiKey = ApiKeyService.create(bucket);
+				testKey = '12ab',
+				storage = ApiKeyService.getStorage(),
+				uuidMock = sinon.stub(ApiKeyService._uuid, "v1").returns(testKey);
+				
+			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+			sinon.stub(storage, 'set').withArgs(bucket, 0);
+			sinon.stub(storage, 'remove').returns(true);
+
+			var apiKey = ApiKeyService.create(bucket);
 
 			assert.ok(apiKey);
 
