@@ -1,4 +1,4 @@
 /node_modules/
 /coverage.html
-sublime-projects
-sublime-workspace
+*.sublime-projects
+*.sublime-workspace
