@@ -13,9 +13,7 @@ describe('ApiKeys Service', function() {
 			"remove" : function(){}
 		};
 
-		// ApiKeyService = new ApiKeys(storage);
-		ApiKeyService = Object.create(ApiKeys);
-		ApiKeyService._storage = storage;
+		ApiKeyService = new ApiKeys(storage);
 	
 	});
 
@@ -25,9 +23,8 @@ describe('ApiKeys Service', function() {
 
 			var bucket = 'test',
 				testKey = '12ab',
-				storage = ApiKeyService.getStorage(),
-				uuidMock = sinon.stub(ApiKeyService._uuid, "v1").returns(testKey);
-
+				storage = ApiKeyService.storage,
+				uuidMock = sinon.stub(ApiKeyService.uuid, "v1").returns(testKey);
 
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 			sinon.stub(storage, 'set').withArgs(bucket, 0);
@@ -43,7 +40,7 @@ describe('ApiKeys Service', function() {
 		it('should return false if ApiKey already exists', function() {
 			
 			var bucket = 'test',
-				storage = ApiKeyService.getStorage();
+				storage = ApiKeyService.storage;
 			
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 
@@ -64,7 +61,7 @@ describe('ApiKeys Service', function() {
 		it('should return the same ApiKey that was returned when created', function() {
 
 			var bucket = 'test',
-				storage = ApiKeyService.getStorage();
+				storage = ApiKeyService.storage;
 
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 
@@ -82,7 +79,7 @@ describe('ApiKeys Service', function() {
 		it('should return false if the requested ApiKey does not exist', function() {
 
 			var bucket = 'test',
-				storage = ApiKeyService.getStorage();
+				storage = ApiKeyService.storage;
 				
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 			
@@ -100,7 +97,7 @@ describe('ApiKeys Service', function() {
 
 			var bucket = 'test',
 				testKey = '12ab',
-				storage = ApiKeyService.getStorage();
+				storage = ApiKeyService.storage;
 				
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 			sinon.stub(storage, 'set').withArgs(bucket, 0);
@@ -123,7 +120,7 @@ describe('ApiKeys Service', function() {
 
 			var bucket = 'test',
 				testKey = '12ab',
-				storage = ApiKeyService.getStorage();
+				storage = ApiKeyService.storage;
 				
 			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
 
