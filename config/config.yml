@@ -2,3 +2,8 @@ default:
   http:
     port: 8385
   backend: node
+  storage:
+    api_key_bucket: _api_keys
+  admin:
+    port: 8386
+    key: gXv3ubnS

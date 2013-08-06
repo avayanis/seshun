@@ -7,13 +7,18 @@ describe('ApiKeys Service', function() {
 
 	beforeEach(function() {
 		
-		var storage = {
-			"get" : function(){},
-			"set" : function(){},
-			"remove" : function(){}
-		};
+		var config = {
+				"storage" : {
+					"api_key_bucket" : "_api_keys"
+				}
+			},
+			storage = {
+				"get" : function(){},
+				"set" : function(){},
+				"remove" : function(){}
+			};
 
-		ApiKeyService = new ApiKeys(storage);
+		ApiKeyService = new ApiKeys(config, storage);
 	
 	});
 
@@ -26,8 +31,12 @@ describe('ApiKeys Service', function() {
 				storage = ApiKeyService.storage,
 				uuidMock = sinon.stub(ApiKeyService.uuid, "v1").returns(testKey);
 
-			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
-			sinon.stub(storage, 'set').withArgs(bucket, 0);
+			sinon.stub(storage, 'get').withArgs(ApiKeyService._apiKeyBucket).returns({});
+
+			var setReturnValue = {};
+			setReturnValue[bucket] = testKey;
+
+			sinon.stub(storage, 'set').withArgs(ApiKeyService._apiKeyBucket, setReturnValue).returns(uuidMock);
 
 			var result = ApiKeyService.create(bucket);
 
@@ -42,11 +51,15 @@ describe('ApiKeys Service', function() {
 			var bucket = 'test',
 				storage = ApiKeyService.storage;
 			
-			sinon.stub(storage, 'get').withArgs(bucket).returns(false);
+			sinon.stub(storage, 'get').withArgs(ApiKeyService._apiKeyBucket).returns({});
 
 			ApiKeyService.create(bucket);
 
-			storage.get.withArgs(bucket).returns(true);
+			storage.get.restore();
+
+			var setReturnValue = {};
+			setReturnValue[bucket] = '123';
+			sinon.stub(storage, 'get').withArgs(ApiKeyService._apiKeyBucket).returns(setReturnValue);
 
 			var result = ApiKeyService.create(bucket);
 			

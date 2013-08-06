@@ -1,21 +1,25 @@
 #! /usr/bin/env node
 
 /**
- * Module dependencies
+ * Core module dependencies
  */
 var server = require('zzz').createServer(),
+    admin = require('zzz').createServer(),
     url = require('url'),
     querystring = require('querystring'),
     debug = require('debug')('seshun:server'),
-    yaml_config = require('node-yaml-config');
+    yamlConfig = require('node-yaml-config');
 
 debug('Starting up Seshun Server.');
 
 debug('Loading configuration.');
 
-var config = yaml_config.load(__dirname + '/../config/config.yml'),
-    storageAdapter = require('../lib/storage/' + config.backend),
-    storage = new storageAdapter();
+var config = yamlConfig.load(__dirname + '/../config/config.yml'),
+    storage = require('../lib/storage/' + config.backend),
+    Session = require('../lib/session'),
+    ApiKeys = require('../lib/api-keys'),
+    apiKeyService = new ApiKeys(config, storage),
+    sessionService = new Session(config, storage, apiKeyService);
 
 server.put('/session/:bucket', function(request, response, params) {
     
@@ -23,11 +27,17 @@ server.put('/session/:bucket', function(request, response, params) {
 
 server.get('/session/:bucket/:sessionId', function(request, response, params) {
     
-    var query = url.parse(request.url).query,
-        apiKey = querystring.parse(query).apiKey;
+    var clientApiKey = request.headers['x-api-key'];
 
-    console.log(apiKey);
+    if (typeof clientApiKey === 'undefined' || clientApiKey == '') {
+        response.statusCode = 401;
+        response.end();
+    }
 
+    var result = sessionService.get(params.bucket, clientApiKey, params.sessionId);
+    console.log(result);
+    // api_keys storage.get(keys_bucket);
+    response.end();
 });
 
 server.post('/session/:bucket/:sessionId', function(request, response, params) {
@@ -40,3 +50,29 @@ server.get('/session/settings', function(request, response, params) {
 
 server.listen(config.http.port);
 debug('Seshun Server listening on port: ' + config.http.port);
+
+debug('Initializing admin application');
+admin.put('/api-key/:bucket', function(request, response, params) {
+    
+    var clientApiKey = request.headers['x-api-key'];
+    
+    if (typeof clientApiKey === 'undefined' || clientApiKey != config.admin.key) {
+        response.statusCode = 401;
+        respond.end();
+        return;
+    }
+
+    var apiKey = apiKeyService.create(params.bucket);
+
+    if (apiKey === false) {
+        response.statusCode = 409;
+        response.end();
+        return;
+    }
+
+    response.statusCode = 201;
+    response.end(apiKey);
+});
+
+admin.listen(config.admin.port);
+debug('Seshun Admin listening on port: ' + config.admin.port);
