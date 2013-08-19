@@ -31,19 +31,14 @@ A session is accessed via standard HTTP / REST verbs.
 |--------|-----|-------------|----------|
 | Any | All | Any method + URL mismatches will respond with a 405 Method Not Allowed | 405 Method Not Allowed |
 | Any | All | Any request made without a valid API key will respond with a 401 Not Authorized | 401 Not Authorized |
-| PUT | /session/bucket?api_key | Create a new session | 201 Created on success |
-| GET | /session/bucket/id?api_key | Retrieve session data corresponding to the specified id, extend TTL | 200 Success; 404 Not Found if `id` is missing |
-| POST | /session/bucket/id?api_key | Update session data that corresponds to the specified id, extend TTL | 200 Success; 404 Not found if `id` is missing |
-| DELETE | /session/bucket/id?api_key | Delete a session that corresponds to the specified id | 200 OK on success; 404 Not Found if `id` is missing / already deleted |
+| PUT | /session/bucket | Create a new session | 201 Created on success |
+| GET | /session/bucket/id | Retrieve session data corresponding to the specified id, extend TTL | 200 Success; 404 Not Found if `id` is missing |
+| POST | /session/bucket/id | Update session data that corresponds to the specified id, extend TTL | 200 Success; 404 Not found if `id` is missing |
+| DELETE | /session/bucket/id | Delete a session that corresponds to the specified id | 200 OK on success; 404 Not Found if `id` is missing / already deleted |
 
 ### API Keys
 
-API keys are appended to the end of URLs via `?api_key=` or sent in a header.
-
-Mechanisms:
-
-- `/session/bucket/id?api_key=asdf1234`
-- `/session/bucket/id` with `X-SESSION-KEY` header = asdf1234
+API keys are sent via a header (X-API-KEY).
 
 If the API key is not valid, the client will receive a 401 Not Authorized header.
 

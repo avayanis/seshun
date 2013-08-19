@@ -1,45 +1,48 @@
 require('./../../test');
 
-var NodeStorage;
+var NodeStorage = require(libpath + '/storage/node'),
+	NodeStorageService;
 
 describe('NodeStorage - In memory storage engine', function() {
 
 	beforeEach(function() {
-		NodeStorage = require(libpath + '/storage/node');
+		NodeStorageService = new NodeStorage();
 	});
 
 	it('should be a valid storage interface', function() {
-		assert.typeOf(NodeStorage.set, 'function');
-		assert.typeOf(NodeStorage.get, 'function');
-		assert.typeOf(NodeStorage.remove, 'function');
+		assert.typeOf(NodeStorageService.set, 'function');
+		assert.typeOf(NodeStorageService.get, 'function');
+		assert.typeOf(NodeStorageService.remove, 'function');
 	});
 
 	describe('NodeStorage.set', function() {
 
 		it('should return false if an invalid key is provided', function() {
 
-			var result = NodeStorage.set({}, 'test');
+			var result = NodeStorageService.set({}, 'test');
 
 			assert.isFalse(result);
 
 		});
 
-		it('should accept 2 arguments: key, value, ttl', function() {
+		it('should accept 3 arguments: bucket, key, value', function() {
 
-			var key = 'testKey',
+			var bucket = 'testBucket',
+				key = 'testKey',
 				value = {'object' : 'value'},
-				result = NodeStorage.set(key, value);
+				result = NodeStorageService.set(bucket, key, value);
 
 			assert.isTrue(result);			
 
 		});
 
-		it('should accept 3 arguments: key, value, ttl', function() {
+		it('should accept 4 arguments: key, value, ttl', function() {
 
-			var key = 'testKey',
+			var bucket = 'testBucket',
+				key = 'testKey',
 				value = {'object' : 'value'},
 				ttl = 5,
-				result = NodeStorage.set(key, value, ttl);
+				result = NodeStorageService.set(bucket, key, value, ttl);
 
 			assert.isTrue(result);
 
@@ -51,19 +54,20 @@ describe('NodeStorage - In memory storage engine', function() {
 
 		it('should return null if an invalid key is provided', function() {
 
-			var result = NodeStorage.get({}, 'test');
+			var result = NodeStorageService.get({}, 'test');
 
 			assert.isFalse(result);
 
 		});
 
-		it('should accept argument: key', function() {
+		it('should accept arguments: bucket, key', function() {
 
-			var key = 'testKey',
+			var bucket = 'testBucket',
+				key = 'testKey',
 				value = {'object' : 'value'};
 				
-			NodeStorage.set(key, value);
-			var result = NodeStorage.get(key);
+			NodeStorageService.set(bucket, key, value);
+			var result = NodeStorageService.get(bucket, key);
 
 			assert.equal(value, result);	
 
@@ -73,20 +77,32 @@ describe('NodeStorage - In memory storage engine', function() {
 
 	describe('NodeStorage.remove', function() {
 
-		it('should remove the specified key', function() {
+		it('should remove the specified key and return True', function() {
 
-			var key = 'testKey',
+			var bucket = 'testBucket',
+				key = 'testKey',
 				value = 'testValue';
 
-			NodeStorage.set(key, value);
+			NodeStorageService.set(bucket, key, value);
 
-			NodeStorage.remove(key);
+			var deleteResult = NodeStorageService.remove(bucket, key),
+				getResult = NodeStorageService.get(bucket, key);
 
-			var result = NodeStorage.get(key);
+			assert.isTrue(deleteResult);
+			assert.isFalse(getResult);
 
-			assert.isFalse(result);
+		});
 
-		})
+		it('should return False if key does not exist', function() {
+
+			var bucket = 'testBucket',
+				key = 'testKey';
+
+			var deleteResult = NodeStorageService.remove(bucket, key);
+
+			assert.isFalse(deleteResult);
+
+		});
 
 	});
 
