@@ -1,4 +1,5 @@
 default:
+  workers: 1
   http:
     port: 8385
   backend: node
