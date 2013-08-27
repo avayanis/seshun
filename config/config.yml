@@ -1,6 +1,6 @@
 default:
   worker: 
-  	processes: 1
+    processes: 1
   http:
     port: 8385
   backend: node
@@ -8,4 +8,4 @@ default:
     api_key_bucket: _api_keys
   admin:
     port: 8386
-    key: "this_should_be_something_secret"
+    key: this_should_be_something_secret
