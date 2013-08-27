@@ -27,7 +27,7 @@ debug('Starting Cluster');
 
 if (cluster.isMaster) {
 
-    for (var i = 0; i < config.workers; i++) {
+    for (var i = 0; i < config.worker.processes; i++) {
 
         cluster.fork();
     }
