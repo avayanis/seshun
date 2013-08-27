@@ -1,27 +1,176 @@
 #! /usr/bin/env node
 
 /**
- * Module dependencies
+ * Core module dependencies
  */
-var server = require("zzz").createServer()
-	debug = require("debug")("seshun:server"),
-	yaml_config = require("node-yaml-config");
+var cluster = require('cluster'),
+    zzz = require('zzz'),
+    admin = zzz.createServer(),
+    url = require('url'),
+    querystring = require('querystring'),
+    debug = require('debug')('seshun:server'),
+    yamlConfig = require('node-yaml-config');
 
-debug("Starting up Seshun Server.");
-debug("Loading configuration.");
-var config = yaml_config.load(__dirname + "/../config/config.yml");
+debug('Starting up Seshun Server.');
 
-server.put("/session/:bucket", function(request, response, params) {
-    response.end(params);
-});
+debug('Loading configuration.');
 
-server.get("/session/:bucket/:sessionId", function(request, response, params) {
-    response.end("Bucket:" + params.bucket + " SessionID:" + params.sessionId);
-});
+var config = yamlConfig.load(__dirname + '/../config/config.yml'),
+    storage = require('../lib/storage/' + config.backend),
+    Session = require('../lib/session'),
+    ApiKeys = require('../lib/api-keys'),
+    storageService = new storage(),
+    apiKeyService = new ApiKeys(config, storageService),
+    sessionService = new Session(config, storageService, apiKeyService);
 
-server.get("/session/settings", function(request, response, params) {
-    response.end("config.yml spewwwww!");
-});
+debug('Starting Cluster');
 
-server.listen(config.http.port);
-debug("Seshun Server listening on port: " + config.http.port);
+if (cluster.isMaster) {
+
+    for (var i = 0; i < config.worker.processes; i++) {
+
+        cluster.fork();
+    }
+} else {
+
+    var server = zzz.createServer();
+
+    server.put('/session/:bucket', function(request, response, params) {
+        var clientApiKey = request.headers['x-api-key'];
+
+        if (typeof clientApiKey === 'undefined' || clientApiKey == '') {
+            response.statusCode = 401;
+            response.end();
+        }
+
+        var sessionId = sessionService.create(params.bucket, clientApiKey);
+
+        if (sessionId === false) {
+            response.statusCode = 500;
+            response.end();
+        }
+
+        response.statusCode = 201;
+        response.end(sessionId);
+        debug('Client Key: ' + clientApiKey + ' created new session: ' + sessionId);
+    });
+
+    server.get('/session/:bucket/:sessionId', function(request, response, params) {
+        
+        var clientApiKey = request.headers['x-api-key'];
+
+        if (typeof clientApiKey === 'undefined' || clientApiKey == '') {
+            response.statusCode = 401;
+            response.end();
+        }
+
+        var result = sessionService.read(params.bucket, clientApiKey, params.sessionId);
+        
+        if (result === false) {
+            response.statusCode = 404;
+            response.end();
+        }
+        
+        response.end(JSON.stringify(result));
+    });
+
+    server.post('/session/:bucket/:sessionId', function(request, response, params) {
+        var clientApiKey = request.headers['x-api-key'];
+
+        if (typeof clientApiKey === 'undefined' || clientApiKey == '') {
+            response.statusCode = 401;
+            response.end();
+        }
+
+        var data = '';
+
+        request.on('data', function(chunk) {
+            data += chunk;
+        });
+
+        request.on('end', function() {
+            
+            try {
+
+                JSON.parse(data);
+
+                var result = sessionService.update(params.bucket, clientApiKey, params.sessionId, data);
+
+                if (result === false) {
+                    response.statusCode = 404;
+                }
+            } catch (err) {
+                debug(err);
+                debug('POST Body was not successfully recieved or contains Malformed JSON');
+                
+                response.statusCode = 500;
+            }
+
+            response.end();        
+        });
+    });
+
+    server.listen(config.http.port);
+    debug('Seshun Server listening on port: ' + config.http.port);
+
+    debug('Initializing admin application');
+
+    admin.get('/session/settings', function(request, response, params) {
+        response.end('config.yml spewwwww!');
+    });
+
+    admin.put('/api-key/:bucket', function(request, response, params) {
+        
+        var clientApiKey = request.headers['x-admin-api-key'];
+        
+        if (typeof clientApiKey === 'undefined' || clientApiKey != config.admin.key) {
+            response.statusCode = 401;
+            respond.end();
+            return;
+        }
+
+        var apiKey = apiKeyService.create(params.bucket);
+
+        if (apiKey === false) {
+            response.statusCode = 409;
+            response.end();
+            return;
+        }
+
+        response.statusCode = 201;
+        response.end(apiKey);
+    });
+
+    admin.post('/api-key/:bucket', function(request, response, params) {
+
+        response.statusCode = 405;
+        response.end();
+    });
+
+    admin.get('/api-key/:bucket', function(request, response, params) {
+
+        var apiKey = apiKeyService.fetch(params.bucket);
+
+        if (apiKey === false) {
+            response.statusCode = 404;
+            response.end();
+        }
+
+        response.end();
+    });
+
+    admin.delete('/api-key/:bucket', function(request, response, params) {
+
+        var result = apiKeyService.delete(params.bucket);
+
+        if (apiKey === false) {
+            response.statusCode = 404;
+            response.end();
+        }
+
+        response.end();
+    });
+
+    admin.listen(config.admin.port);
+    debug('Seshun Admin listening on port: ' + config.admin.port);
+}
