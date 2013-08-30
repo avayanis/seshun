@@ -9,3 +9,13 @@ if (process.env.HTML_COVERAGE) {
 } else {
     libpath = __dirname + "/../lib"
 }
+
+mocks = {
+	getStorage : function() {
+		return {
+			"get" : function(){},
+			"set" : function(){},
+			"remove" : function(){}
+		}
+	}
+}

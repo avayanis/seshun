@@ -12,11 +12,7 @@ describe('ApiKeys Service', function() {
 					"api_key_bucket" : "_api_keys"
 				}
 			},
-			storage = {
-				"get" : function(){},
-				"set" : function(){},
-				"remove" : function(){}
-			};
+			storage = mocks.getStorage();
 
 		ApiKeyService = new ApiKeys(config, storage);
 	
