@@ -1,3 +1,10 @@
+.PHONY: test
+
+all: init test
+
+init:
+	npm install
+
 test:
 	./node_modules/mocha/bin/mocha \
 		--recursive \
@@ -10,4 +17,5 @@ coverage:
 		--reporter html-cov > coverage.html
 	rm -rf lib-cov
 
-.PHONY: test
+dev:
+	node bin/seshun
