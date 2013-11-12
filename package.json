@@ -8,7 +8,11 @@
   "bugs" : "https://github.com/avayanis/seshun/issues",
   "bin" : {
       "seshun" : "./bin/seshun"
-  },    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/avayanis/session.git"
+  },
   "dependencies" : {
     "zzz" : "0.2.0",
     "node-uuid" : "1.4.0",
