@@ -56,7 +56,7 @@ if (cluster.isMaster) {
     });
 
     server.get('/session/:bucket/:sessionId', function(request, response, params) {
-        
+
         var clientApiKey = request.headers['x-api-key'];
 
         if (typeof clientApiKey === 'undefined' || clientApiKey == '') {
@@ -65,12 +65,12 @@ if (cluster.isMaster) {
         }
 
         var result = sessionService.read(params.bucket, clientApiKey, params.sessionId);
-        
+
         if (result === false) {
             response.statusCode = 404;
             response.end();
         }
-        
+
         response.end(JSON.stringify(result));
     });
 
@@ -89,7 +89,7 @@ if (cluster.isMaster) {
         });
 
         request.on('end', function() {
-            
+
             try {
 
                 JSON.parse(data);
@@ -102,11 +102,11 @@ if (cluster.isMaster) {
             } catch (err) {
                 debug(err);
                 debug('POST Body was not successfully recieved or contains Malformed JSON');
-                
+
                 response.statusCode = 500;
             }
 
-            response.end();        
+            response.end();
         });
     });
 
@@ -120,12 +120,12 @@ if (cluster.isMaster) {
     });
 
     admin.put('/api-key/:bucket', function(request, response, params) {
-        
+
         var clientApiKey = request.headers['x-admin-api-key'];
-        
+
         if (typeof clientApiKey === 'undefined' || clientApiKey != config.admin.key) {
             response.statusCode = 401;
-            respond.end();
+            response.end();
             return;
         }
 
@@ -149,6 +149,14 @@ if (cluster.isMaster) {
 
     admin.get('/api-key/:bucket', function(request, response, params) {
 
+        var clientApiKey = request.headers['x-admin-api-key'];
+
+        if (typeof clientApiKey === 'undefined' || clientApiKey != config.admin.key) {
+            response.statusCode = 401;
+            response.end();
+            return;
+        }
+
         var apiKey = apiKeyService.fetch(params.bucket);
 
         if (apiKey === false) {
@@ -156,14 +164,29 @@ if (cluster.isMaster) {
             response.end();
         }
 
-        response.end();
+        r = JSON.stringify({
+            "bucket": params.bucket,
+            "api_key": apiKey
+        });
+
+        console.log(r);
+
+        response.end(r);
     });
 
     admin.delete('/api-key/:bucket', function(request, response, params) {
 
+        var clientApiKey = request.headers['x-admin-api-key'];
+
+        if (typeof clientApiKey === 'undefined' || clientApiKey != config.admin.key) {
+            response.statusCode = 401;
+            response.end();
+            return;
+        }
+
         var result = apiKeyService.delete(params.bucket);
 
-        if (apiKey === false) {
+        if (result === false) {
             response.statusCode = 404;
             response.end();
         }
