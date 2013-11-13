@@ -169,8 +169,6 @@ if (cluster.isMaster) {
             "api_key": apiKey
         });
 
-        console.log(r);
-
         response.end(r);
     });
 
